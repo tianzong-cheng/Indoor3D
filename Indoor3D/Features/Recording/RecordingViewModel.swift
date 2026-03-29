@@ -24,7 +24,7 @@ final class RecordingViewModel: ObservableObject {
     private var movieFileOutput: AVCaptureMovieFileOutput?
     private var recordingStartTime: Date?
     private var durationTimer: Timer?
-    private var currentVideoURL: URL?
+    private(set) var currentVideoURL: URL?
 
     func setupCaptureSession() {
         let session = AVCaptureSession()
