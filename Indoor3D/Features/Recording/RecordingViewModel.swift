@@ -1,6 +1,7 @@
 // Indoor3D/Features/Recording/RecordingViewModel.swift
 
 import AVFoundation
+import Combine
 import Foundation
 import SwiftUI
 
@@ -12,7 +13,7 @@ enum RecordingState {
 }
 
 @MainActor
-final class RecordingViewModel: ObservableObject {
+final class RecordingViewModel: NSObject, ObservableObject {
     @Published var state: RecordingState = .idle
     @Published var duration: TimeInterval = 0
     @Published var errorMessage: String?
@@ -99,11 +100,11 @@ final class RecordingViewModel: ObservableObject {
 }
 
 extension RecordingViewModel: AVCaptureFileOutputRecordingDelegate {
-    nonisolated func fileOutput(_ output: AVCaptureFileOutput, didStartRecordingTo fileURL: URL, from connections: [AVCaptureConnection]) {
+    func fileOutput(_ output: AVCaptureFileOutput, didStartRecordingTo fileURL: URL, from connections: [AVCaptureConnection]) {
         // Recording started
     }
 
-    nonisolated func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         Task { @MainActor in
             if let error = error {
                 self.errorMessage = error.localizedDescription

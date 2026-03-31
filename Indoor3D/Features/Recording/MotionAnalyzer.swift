@@ -1,5 +1,6 @@
 // Indoor3D/Features/Recording/MotionAnalyzer.swift
 
+import Combine
 import CoreMotion
 import Foundation
 

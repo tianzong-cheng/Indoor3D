@@ -1,5 +1,6 @@
 // Indoor3D/Features/Upload/UploadQueueViewModel.swift
 
+import Combine
 import Foundation
 
 @MainActor

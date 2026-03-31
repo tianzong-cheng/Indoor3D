@@ -173,12 +173,20 @@ struct CameraPreview: UIViewRepresentable {
 
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session!)
-        previewLayer.frame = UIScreen.main.bounds
+        view.backgroundColor = .black
+        guard let session else { return view }
+        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+        previewLayer.frame = view.bounds
         previewLayer.videoGravity = .resizeAspectFill
+        previewLayer.name = "previewLayer"
         view.layer.addSublayer(previewLayer)
         return view
     }
 
-    func updateUIView(_ uiView: UIView, context: Context) {}
+    func updateUIView(_ uiView: UIView, context: Context) {
+        guard let session,
+              let previewLayer = uiView.layer.sublayers?.first(where: { $0.name == "previewLayer" }) as? AVCaptureVideoPreviewLayer else { return }
+        previewLayer.frame = uiView.bounds
+        previewLayer.session = session
+    }
 }
