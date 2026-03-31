@@ -1,6 +1,6 @@
 // Indoor3D/Features/Recording/RecordingViewModel.swift
 
-import AVFoundation
+@preconcurrency import AVFoundation
 import Combine
 import Foundation
 import SwiftUI
@@ -21,13 +21,14 @@ final class RecordingViewModel: NSObject, ObservableObject {
 
     let motionAnalyzer = MotionAnalyzer()
 
-    var captureSession: AVCaptureSession?
+    @Published var captureSession: AVCaptureSession?
     private var movieFileOutput: AVCaptureMovieFileOutput?
     private var recordingStartTime: Date?
     private var durationTimer: Timer?
     private(set) var currentVideoURL: URL?
 
     func setupCaptureSession() {
+        guard captureSession == nil else { return }
         let session = AVCaptureSession()
         session.sessionPreset = .high
 
@@ -56,7 +57,9 @@ final class RecordingViewModel: NSObject, ObservableObject {
         self.captureSession = session
         self.movieFileOutput = movieOutput
 
-        session.startRunning()
+        DispatchQueue.global(qos: .userInitiated).async { [session] in
+            session.startRunning()
+        }
     }
 
     func startRecording() {
@@ -100,11 +103,11 @@ final class RecordingViewModel: NSObject, ObservableObject {
 }
 
 extension RecordingViewModel: AVCaptureFileOutputRecordingDelegate {
-    func fileOutput(_ output: AVCaptureFileOutput, didStartRecordingTo fileURL: URL, from connections: [AVCaptureConnection]) {
+    nonisolated func fileOutput(_ output: AVCaptureFileOutput, didStartRecordingTo fileURL: URL, from connections: [AVCaptureConnection]) {
         // Recording started
     }
 
-    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+    nonisolated func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         Task { @MainActor in
             if let error = error {
                 self.errorMessage = error.localizedDescription

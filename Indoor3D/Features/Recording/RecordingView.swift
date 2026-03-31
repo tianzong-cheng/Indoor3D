@@ -168,25 +168,37 @@ struct MetadataSheetView: View {
     }
 }
 
+final class _CameraPreviewView: UIView {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        (layer.sublayers?.first(where: { $0.name == "previewLayer" }) as? AVCaptureVideoPreviewLayer)?.frame = bounds
+    }
+}
+
 struct CameraPreview: UIViewRepresentable {
     let session: AVCaptureSession?
 
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView()
+    func makeUIView(context: Context) -> _CameraPreviewView {
+        let view = _CameraPreviewView()
         view.backgroundColor = .black
-        guard let session else { return view }
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer.frame = view.bounds
-        previewLayer.videoGravity = .resizeAspectFill
-        previewLayer.name = "previewLayer"
-        view.layer.addSublayer(previewLayer)
         return view
     }
 
-    func updateUIView(_ uiView: UIView, context: Context) {
-        guard let session,
-              let previewLayer = uiView.layer.sublayers?.first(where: { $0.name == "previewLayer" }) as? AVCaptureVideoPreviewLayer else { return }
-        previewLayer.frame = uiView.bounds
-        previewLayer.session = session
+    func updateUIView(_ uiView: _CameraPreviewView, context: Context) {
+        let existingLayer = uiView.layer.sublayers?.first(where: { $0.name == "previewLayer" }) as? AVCaptureVideoPreviewLayer
+
+        if let session {
+            if let existingLayer {
+                existingLayer.session = session
+            } else {
+                let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+                previewLayer.frame = uiView.bounds
+                previewLayer.videoGravity = .resizeAspectFill
+                previewLayer.name = "previewLayer"
+                uiView.layer.addSublayer(previewLayer)
+            }
+        } else {
+            existingLayer?.removeFromSuperlayer()
+        }
     }
 }
