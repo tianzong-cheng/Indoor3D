@@ -114,6 +114,8 @@ struct RecordingView: View {
     }
 
     private func saveVideoWithMetadata() {
+        showMetadataSheet = false
+
         guard let videoURL = viewModel.currentVideoURL else { return }
 
         Task {
