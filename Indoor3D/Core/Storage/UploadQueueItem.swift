@@ -2,7 +2,7 @@
 
 import Foundation
 
-enum UploadStatus: String, Codable {
+nonisolated enum UploadStatus: String, Codable {
     case pending
     case uploading
     case paused
@@ -10,7 +10,7 @@ enum UploadStatus: String, Codable {
     case failed
 }
 
-struct UploadQueueItem: Identifiable, Codable {
+nonisolated struct UploadQueueItem: Identifiable, Codable {
     let id: UUID
     let videoMetadata: VideoMetadata
     var status: UploadStatus
@@ -38,7 +38,7 @@ actor UploadQueue {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         queueURL = appSupport.appendingPathComponent("upload_queue.json")
 
-        loadQueue()
+        Task { await loadQueue() }
     }
 
     private func loadQueue() {

@@ -2,7 +2,7 @@
 
 import Foundation
 
-struct PLYFile: Codable, Hashable, Identifiable {
+nonisolated struct PLYFile: Codable, Hashable, Identifiable {
     let id: String
     let filename: String
     let fileSizeMb: Double
@@ -24,7 +24,7 @@ struct PLYFile: Codable, Hashable, Identifiable {
     }
 }
 
-struct PLYListResponse: Codable {
+nonisolated struct PLYListResponse: Codable {
     let plyFiles: [PLYFile]
 
     enum CodingKeys: String, CodingKey {

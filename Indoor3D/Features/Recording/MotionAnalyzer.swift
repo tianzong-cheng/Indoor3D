@@ -4,14 +4,14 @@ import Combine
 import CoreMotion
 import Foundation
 
-enum MotionState {
+nonisolated enum MotionState {
     case good
     case tooFast
     case tooSlow
     case shaky
 }
 
-struct MotionFeedback {
+nonisolated struct MotionFeedback {
     let state: MotionState
     let message: String?
 }

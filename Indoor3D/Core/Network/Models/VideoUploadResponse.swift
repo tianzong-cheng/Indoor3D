@@ -2,7 +2,7 @@
 
 import Foundation
 
-struct VideoUploadResponse: Codable {
+nonisolated struct VideoUploadResponse: Codable {
     let videoId: String
     let status: String
     let createdAt: Date

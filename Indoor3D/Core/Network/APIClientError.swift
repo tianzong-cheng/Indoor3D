@@ -2,7 +2,7 @@
 
 import Foundation
 
-enum APIClientError: Error, LocalizedError {
+nonisolated enum APIClientError: Error, LocalizedError {
     case invalidURL
     case invalidResponse
     case httpError(statusCode: Int)

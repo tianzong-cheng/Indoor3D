@@ -2,7 +2,7 @@
 
 import Foundation
 
-struct Endpoints {
+nonisolated struct Endpoints {
     static let baseURL = URL(string: "http://localhost:8000/api/v1")!
 
     static var videos: URL { baseURL.appendingPathComponent("videos") }

@@ -87,8 +87,8 @@ struct RecordingView: View {
         .onAppear {
             viewModel.setupCaptureSession()
         }
-        .onChange(of: viewModel.state) { newState in
-            if newState == .stopped {
+        .onChange(of: viewModel.state) {
+            if viewModel.state == .stopped {
                 showMetadataSheet = true
             }
         }
@@ -129,7 +129,7 @@ struct RecordingView: View {
                 duration: viewModel.duration
             )
 
-            try? VideoStore.shared.saveVideo(from: videoURL, metadata: metadata)
+            _ = try? await VideoStore.shared.saveVideo(from: videoURL, metadata: metadata)
             await UploadService.shared.addToQueue(videoMetadata: metadata)
 
             viewModel.state = .idle
