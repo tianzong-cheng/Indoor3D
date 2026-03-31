@@ -2,7 +2,7 @@
 
 import Foundation
 
-struct VideoMetadata: Codable {
+nonisolated struct VideoMetadata: Codable {
     let id: UUID
     let filename: String
     let createdAt: Date

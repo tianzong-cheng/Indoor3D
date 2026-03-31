@@ -5,7 +5,7 @@ import Combine
 import Foundation
 import SwiftUI
 
-enum RecordingState {
+nonisolated enum RecordingState {
     case idle
     case preparing
     case recording
@@ -74,7 +74,7 @@ final class RecordingViewModel: NSObject, ObservableObject {
         motionAnalyzer.startMonitoring()
 
         durationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 self?.updateDuration()
             }
         }
