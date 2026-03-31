@@ -1,5 +1,6 @@
 // Indoor3D/Core/Location/LocationManager.swift
 
+import Combine
 import CoreLocation
 import Foundation
 

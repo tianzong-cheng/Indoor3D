@@ -2,7 +2,7 @@
 
 import Foundation
 
-struct PLYFile: Codable, Identifiable {
+struct PLYFile: Codable, Hashable, Identifiable {
     let id: String
     let filename: String
     let fileSizeMb: Double
