@@ -14,7 +14,7 @@ final class SettingsViewModel: ObservableObject {
             do {
                 let size = try await VideoStore.shared.calculateStorageSize()
                 let videos = try await VideoStore.shared.listAllVideos()
-                storageUsed = ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file)
+                storageUsed = size == 0 ? "0 KB" : ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file)
                 videoCount = videos.count
             } catch {
                 storageUsed = "Unknown"
@@ -29,7 +29,7 @@ final class SettingsViewModel: ObservableObject {
             do {
                 try await VideoStore.shared.deleteAllVideos()
                 await UploadQueue.shared.syncWithLocalVideos()
-                storageUsed = ByteCountFormatter.string(fromByteCount: 0, countStyle: .file)
+                storageUsed = "0 KB"
                 videoCount = 0
             } catch {
                 errorMessage = error.localizedDescription
