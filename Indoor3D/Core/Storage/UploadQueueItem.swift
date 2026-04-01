@@ -79,4 +79,20 @@ actor UploadQueue {
     func getPending() -> [UploadQueueItem] {
         items.filter { $0.status == .pending || $0.status == .failed }
     }
+
+    func syncWithLocalVideos() async {
+        let localVideos = (try? await VideoStore.shared.listAllVideos()) ?? []
+        let localVideoIDs = Set(localVideos.map { $0.id })
+
+        // Remove items whose video files no longer exist
+        items.removeAll { !localVideoIDs.contains($0.videoMetadata.id) }
+
+        // Add items for local videos not yet tracked in the queue
+        let trackedIDs = Set(items.map { $0.videoMetadata.id })
+        for video in localVideos where !trackedIDs.contains(video.id) {
+            items.append(UploadQueueItem(videoMetadata: video))
+        }
+
+        saveQueue()
+    }
 }

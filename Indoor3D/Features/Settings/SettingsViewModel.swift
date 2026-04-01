@@ -28,6 +28,7 @@ final class SettingsViewModel: ObservableObject {
         Task {
             do {
                 try await VideoStore.shared.deleteAllVideos()
+                await UploadQueue.shared.syncWithLocalVideos()
                 storageUsed = ByteCountFormatter.string(fromByteCount: 0, countStyle: .file)
                 videoCount = 0
             } catch {

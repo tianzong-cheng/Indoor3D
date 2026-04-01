@@ -12,6 +12,7 @@ final class UploadQueueViewModel: ObservableObject {
 
     func loadItems() async {
         isLoading = true
+        await UploadQueue.shared.syncWithLocalVideos()
         items = await UploadQueue.shared.getAll()
         isLoading = false
     }

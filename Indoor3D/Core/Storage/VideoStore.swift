@@ -78,6 +78,10 @@ actor VideoStore {
         }
     }
 
+    func videoFileExists(filename: String) -> Bool {
+        fileManager.fileExists(atPath: videosDirectory.appendingPathComponent(filename).path)
+    }
+
     func calculateStorageSize() throws -> UInt64 {
         let contents = try fileManager.contentsOfDirectory(at: videosDirectory, includingPropertiesForKeys: [.fileSizeKey])
         return contents.reduce(0) { total, url in
