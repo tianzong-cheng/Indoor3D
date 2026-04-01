@@ -30,6 +30,10 @@ struct MainTabView: View {
             Tab("Gallery", systemImage: "cube.transparent") {
                 PLYListView()
             }
+
+            Tab("Settings", systemImage: "gearshape.fill") {
+                SettingsView()
+            }
         }
     }
 }

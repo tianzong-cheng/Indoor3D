@@ -77,4 +77,21 @@ actor VideoStore {
             return try JSONDecoder().decode(VideoMetadata.self, from: data)
         }
     }
+
+    func calculateStorageSize() throws -> UInt64 {
+        let contents = try fileManager.contentsOfDirectory(at: videosDirectory, includingPropertiesForKeys: [.fileSizeKey])
+        return contents.reduce(0) { total, url in
+            guard let values = try? url.resourceValues(forKeys: [.fileSizeKey]),
+                  let fileSize = values.fileSize
+            else { return total }
+            return total + UInt64(fileSize)
+        }
+    }
+
+    func deleteAllVideos() throws {
+        let contents = try fileManager.contentsOfDirectory(at: videosDirectory, includingPropertiesForKeys: nil)
+        for url in contents {
+            try fileManager.removeItem(at: url)
+        }
+    }
 }
