@@ -157,6 +157,7 @@ struct MetadataSheetView: View {
                         .keyboardType(.numberPad)
                 }
             }
+            .presentationDetents([.medium])
             .navigationTitle("Video Details")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
