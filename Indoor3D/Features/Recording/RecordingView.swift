@@ -10,84 +10,96 @@ struct RecordingView: View {
     @State private var showMetadataSheet = false
     @State private var buildingName = ""
     @State private var floor = ""
+    @State private var cameraReady = false
 
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 Color.black.ignoresSafeArea()
 
-                // Camera preview
-                CameraPreview(session: viewModel.captureSession)
-                    .ignoresSafeArea()
+                // Camera preview + overlays fade in together
+                Group {
+                    // Camera preview
+                    CameraPreview(session: viewModel.captureSession)
+                        .ignoresSafeArea()
 
-                // Recording indicator
-                if viewModel.state == .recording {
-                    VStack {
-                        HStack {
-                            Circle()
-                                .fill(Color.red)
-                                .frame(width: 12, height: 12)
-                            Text(viewModel.formattedDuration)
-                                .font(.system(.title2, design: .monospaced))
-                                .foregroundColor(.white)
+                    // Recording indicator
+                    if viewModel.state == .recording {
+                        VStack {
+                            HStack {
+                                Circle()
+                                    .fill(Color.red)
+                                    .frame(width: 12, height: 12)
+                                Text(viewModel.formattedDuration)
+                                    .font(.system(.title2, design: .monospaced))
+                                    .foregroundColor(.white)
+                                Spacer()
+                            }
+                            .padding()
                             Spacer()
                         }
-                        .padding()
-                        Spacer()
                     }
-                }
 
-                // Motion feedback overlay
-                if let feedback = viewModel.motionFeedback,
-                   let message = feedback.message {
-                    VStack {
-                        Spacer()
-                        Text(message)
-                            .font(.headline)
-                            .foregroundColor(feedbackColor(for: feedback.state))
-                            .padding()
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(10)
-                            .padding(.bottom, 150)
-                    }
-                }
-
-                // Controls
-                VStack {
-                    Spacer()
-                    HStack(spacing: 40) {
-                        switch viewModel.state {
-                        case .idle, .preparing:
-                            Button(action: { viewModel.startRecording() }) {
-                                Circle()
-                                    .stroke(Color.white, lineWidth: 4)
-                                    .frame(width: 70, height: 70)
-                                    .overlay(
-                                        Circle()
-                                            .fill(Color.red)
-                                            .frame(width: 60, height: 60)
-                                    )
-                            }
-
-                        case .recording:
-                            Button(action: { viewModel.stopRecording() }) {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.red)
-                                    .frame(width: 50, height: 50)
-                            }
-
-                        case .stopped:
-                            EmptyView()
+                    // Motion feedback overlay
+                    if let feedback = viewModel.motionFeedback,
+                       let message = feedback.message {
+                        VStack {
+                            Spacer()
+                            Text(message)
+                                .font(.headline)
+                                .foregroundColor(feedbackColor(for: feedback.state))
+                                .padding()
+                                .background(.ultraThinMaterial)
+                                .cornerRadius(10)
+                                .padding(.bottom, 150)
                         }
                     }
-                    .padding(.bottom, 40)
+
+                    // Controls
+                    VStack {
+                        Spacer()
+                        HStack(spacing: 40) {
+                            switch viewModel.state {
+                            case .idle, .preparing:
+                                Button(action: { viewModel.startRecording() }) {
+                                    Circle()
+                                        .stroke(Color.white, lineWidth: 4)
+                                        .frame(width: 70, height: 70)
+                                        .overlay(
+                                            Circle()
+                                                .fill(Color.red)
+                                                .frame(width: 60, height: 60)
+                                        )
+                                }
+
+                            case .recording:
+                                Button(action: { viewModel.stopRecording() }) {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color.red)
+                                        .frame(width: 50, height: 50)
+                                }
+
+                            case .stopped:
+                                EmptyView()
+                            }
+                        }
+                        .padding(.bottom, 40)
+                    }
                 }
+                .opacity(cameraReady ? 1 : 0)
             }
         }
         .onAppear {
+            cameraReady = false
             viewModel.setupCaptureSession()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                withAnimation(.easeIn(duration: 0.3)) {
+                    cameraReady = true
+                }
+            }
         }
         .onDisappear {
+            cameraReady = false
             viewModel.stopSession()
         }
         .onChange(of: viewModel.state) {
