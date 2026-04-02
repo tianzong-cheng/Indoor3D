@@ -87,6 +87,9 @@ struct RecordingView: View {
         .onAppear {
             viewModel.setupCaptureSession()
         }
+        .onDisappear {
+            viewModel.stopSession()
+        }
         .onChange(of: viewModel.state) {
             if viewModel.state == .stopped {
                 showMetadataSheet = true

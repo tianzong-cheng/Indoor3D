@@ -28,7 +28,11 @@ final class RecordingViewModel: NSObject, ObservableObject {
     private(set) var currentVideoURL: URL?
 
     func setupCaptureSession() {
-        guard captureSession == nil else { return }
+        guard captureSession == nil else {
+            // Session exists but may be stopped — restart it
+            startSession()
+            return
+        }
         let session = AVCaptureSession()
         session.sessionPreset = .high
 
@@ -57,8 +61,20 @@ final class RecordingViewModel: NSObject, ObservableObject {
         self.captureSession = session
         self.movieFileOutput = movieOutput
 
-        DispatchQueue.global(qos: .userInitiated).async { [session] in
-            session.startRunning()
+        startSession()
+    }
+
+    func startSession() {
+        guard let captureSession, !captureSession.isRunning else { return }
+        DispatchQueue.global(qos: .userInitiated).async { [captureSession] in
+            captureSession.startRunning()
+        }
+    }
+
+    func stopSession() {
+        guard let captureSession, captureSession.isRunning else { return }
+        DispatchQueue.global(qos: .userInitiated).async { [captureSession] in
+            captureSession.stopRunning()
         }
     }
 
