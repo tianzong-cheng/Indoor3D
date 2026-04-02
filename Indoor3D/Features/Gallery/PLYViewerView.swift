@@ -11,6 +11,7 @@ struct PLYViewerView: View {
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var plyFileURL: URL?
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         ZStack {
@@ -42,6 +43,9 @@ struct PLYViewerView: View {
         .task {
             await loadPLYFile()
         }
+        .onChange(of: colorScheme) {
+            updateSceneBackground()
+        }
     }
 
     private func loadPLYFile() async {
@@ -54,11 +58,19 @@ struct PLYViewerView: View {
         do {
             let pointCloud = try PLYParser.parse(url: url)
             scene = PLYParser.makeScene(from: pointCloud)
+            updateSceneBackground()
         } catch {
             errorMessage = error.localizedDescription
         }
 
         isLoading = false
+    }
+
+    private func updateSceneBackground() {
+        let color: UIColor = colorScheme == .dark
+            ? UIColor(red: 0.12, green: 0.12, blue: 0.13, alpha: 1)
+            : .white
+        scene?.background.contents = color
     }
 }
 
