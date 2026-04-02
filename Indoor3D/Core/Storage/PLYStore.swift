@@ -36,6 +36,17 @@ actor PLYStore {
         return destinationURL
     }
 
+    func copyPLY(from sourceURL: URL, id: String) throws -> URL {
+        let destinationURL = localURL(for: id)
+
+        if fileManager.fileExists(atPath: destinationURL.path) {
+            try fileManager.removeItem(at: destinationURL)
+        }
+
+        try fileManager.copyItem(at: sourceURL, to: destinationURL)
+        return destinationURL
+    }
+
     func delete(id: String) throws {
         let url = localURL(for: id)
         if fileManager.fileExists(atPath: url.path) {
