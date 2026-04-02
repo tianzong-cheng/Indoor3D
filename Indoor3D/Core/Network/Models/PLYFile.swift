@@ -22,6 +22,17 @@ nonisolated struct PLYFile: Codable, Hashable, Identifiable {
         case floor
         case createdAt = "created_at"
     }
+
+    static let sampleFile = PLYFile(
+        id: "bundled_sample",
+        filename: "cyberpunk2_combined_pcd.ply",
+        fileSizeMb: 28.0,
+        latitude: 0,
+        longitude: 0,
+        buildingName: "Bundled Sample",
+        floor: nil,
+        createdAt: Date()
+    )
 }
 
 nonisolated struct PLYListResponse: Codable {

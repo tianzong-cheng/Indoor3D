@@ -19,10 +19,31 @@ final class PLYListViewModel: ObservableObject {
             self.plyFiles = response.plyFiles
             self.downloadedIDs = Set(await PLYStore.shared.listDownloaded())
         } catch {
-            self.errorMessage = error.localizedDescription
+            // Server unavailable — try showing bundled sample for offline testing
+            await seedBundledSample()
+            self.downloadedIDs = Set(await PLYStore.shared.listDownloaded())
+
+            if downloadedIDs.contains("bundled_sample") {
+                self.plyFiles = [PLYFile.sampleFile]
+                self.errorMessage = nil
+            } else {
+                self.errorMessage = error.localizedDescription
+            }
         }
 
         isLoading = false
+    }
+
+    private func seedBundledSample() async {
+        let id = "bundled_sample"
+        let alreadyDownloaded = await PLYStore.shared.isDownloaded(id: id)
+        guard !alreadyDownloaded else { return }
+
+        guard let bundleURL = Bundle.main.url(forResource: "cyberpunk2_combined_pcd", withExtension: "ply") else {
+            return
+        }
+        // Copy bundled file into PLYStore so the viewer can find it
+        _ = try? await PLYStore.shared.copyPLY(from: bundleURL, id: id)
     }
 
     func downloadPLY(_ file: PLYFile) async {
