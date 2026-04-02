@@ -122,14 +122,14 @@ struct PLYParser {
 
         let positions = NSData(bytes: pointCloud.vertices, length: vertexCount * MemoryLayout<SCNVector3>.size) as NSData
 
-        var colorComponents = [CGFloat]()
+        var colorComponents = [Float]()
         colorComponents.reserveCapacity(vertexCount * 4)
         for color in pointCloud.colors {
             var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
             color.getRed(&r, green: &g, blue: &b, alpha: &a)
-            colorComponents.append(contentsOf: [r, g, b, a])
+            colorComponents.append(contentsOf: [Float(r), Float(g), Float(b), Float(a)])
         }
-        let colorsData = NSData(bytes: colorComponents, length: vertexCount * 4 * MemoryLayout<CGFloat>.size) as NSData
+        let colorsData = NSData(bytes: colorComponents, length: vertexCount * 4 * MemoryLayout<Float>.size) as NSData
 
         let source = SCNGeometrySource(data: positions as Data,
                                        semantic: .vertex,
@@ -145,9 +145,9 @@ struct PLYParser {
                                             vectorCount: vertexCount,
                                             usesFloatComponents: true,
                                             componentsPerVector: 4,
-                                            bytesPerComponent: MemoryLayout<CGFloat>.size,
+                                            bytesPerComponent: MemoryLayout<Float>.size,
                                             dataOffset: 0,
-                                            dataStride: 4 * MemoryLayout<CGFloat>.size)
+                                            dataStride: 4 * MemoryLayout<Float>.size)
 
         // Use implicit sequential indices (no explicit index buffer)
         let element = SCNGeometryElement(data: nil,
@@ -161,6 +161,7 @@ struct PLYParser {
         element.maximumPointScreenSpaceRadius = 4.0
 
         let geometry = SCNGeometry(sources: [source, colorSource], elements: [element])
+        geometry.firstMaterial?.lightingModel = .constant
 
         let node = SCNNode(geometry: geometry)
 
