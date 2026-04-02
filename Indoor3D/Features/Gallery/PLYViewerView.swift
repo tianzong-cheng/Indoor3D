@@ -52,34 +52,8 @@ struct PLYViewerView: View {
         self.plyFileURL = url
 
         do {
-            let newScene = try SCNScene(url: url, options: nil)
-
-            // Add a camera if not present
-            if newScene.rootNode.childNode(withName: "camera", recursively: true) == nil {
-                let cameraNode = SCNNode()
-                cameraNode.camera = SCNCamera()
-                cameraNode.position = SCNVector3(0, 0, 5)
-                cameraNode.name = "camera"
-                newScene.rootNode.addChildNode(cameraNode)
-            }
-
-            // Center the model
-            let boundingBox = newScene.rootNode.boundingBox
-            let center = SCNVector3(
-                (boundingBox.min.x + boundingBox.max.x) / 2,
-                (boundingBox.min.y + boundingBox.max.y) / 2,
-                (boundingBox.min.z + boundingBox.max.z) / 2
-            )
-
-            for child in newScene.rootNode.childNodes {
-                child.position = SCNVector3(
-                    child.position.x - center.x,
-                    child.position.y - center.y,
-                    child.position.z - center.z
-                )
-            }
-
-            scene = newScene
+            let pointCloud = try PLYParser.parse(url: url)
+            scene = PLYParser.makeScene(from: pointCloud)
         } catch {
             errorMessage = error.localizedDescription
         }
