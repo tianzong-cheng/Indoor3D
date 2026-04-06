@@ -39,7 +39,7 @@ final class PLYListViewModel: ObservableObject {
         let alreadyDownloaded = await PLYStore.shared.isDownloaded(id: id)
         guard !alreadyDownloaded else { return }
 
-        guard let bundleURL = Bundle.main.url(forResource: "cyberpunk2_combined_pcd", withExtension: "ply") else {
+        guard let bundleURL = Bundle.main.url(forResource: "school_of_design", withExtension: "ply") else {
             return
         }
         // Copy bundled file into PLYStore so the viewer can find it

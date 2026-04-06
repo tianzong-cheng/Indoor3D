@@ -25,11 +25,11 @@ nonisolated struct PLYFile: Codable, Hashable, Identifiable {
 
     static let sampleFile = PLYFile(
         id: "bundled_sample",
-        filename: "cyberpunk2_combined_pcd.ply",
-        fileSizeMb: 28.0,
+        filename: "school_of_design.ply",
+        fileSizeMb: 35.5,
         latitude: 0,
         longitude: 0,
-        buildingName: "Bundled Sample",
+        buildingName: "School of Design",
         floor: nil,
         createdAt: Date()
     )
