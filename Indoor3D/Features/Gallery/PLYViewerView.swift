@@ -11,6 +11,7 @@ struct PLYViewerView: View {
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var plyFileURL: URL?
+    @State private var userHasInteracted = false
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
@@ -24,11 +25,23 @@ struct PLYViewerView: View {
                     description: Text(error)
                 )
             } else if let scene = scene {
-                SceneView(
-                    scene: scene,
-                    pointOfView: scene.rootNode.childNode(withName: "camera", recursively: true),
-                    options: [.allowsCameraControl, .autoenablesDefaultLighting]
-                )
+                ZStack {
+                    SceneView(
+                        scene: scene,
+                        pointOfView: scene.rootNode.childNode(withName: "camera", recursively: true),
+                        options: [.allowsCameraControl, .autoenablesDefaultLighting]
+                    )
+                    if !userHasInteracted {
+                        Color.black.opacity(0.001)
+                            .gesture(
+                                DragGesture(minimumDistance: 0)
+                                    .onChanged { _ in
+                                        userHasInteracted = true
+                                        stopAutoRotation()
+                                    }
+                            )
+                    }
+                }
             }
         }
         .navigationTitle(filename)
@@ -59,11 +72,27 @@ struct PLYViewerView: View {
             let pointCloud = try PLYParser.parse(url: url)
             scene = PLYParser.makeScene(from: pointCloud)
             updateSceneBackground()
+            startAutoRotation()
         } catch {
             errorMessage = error.localizedDescription
         }
 
         isLoading = false
+    }
+
+    private func startAutoRotation() {
+        guard let scene,
+              let rotationNode = scene.rootNode.childNode(withName: "rotationNode", recursively: true)
+        else { return }
+        let action = SCNAction.rotateBy(x: 0, y: CGFloat.pi * 2, z: 0, duration: 20)
+        rotationNode.runAction(SCNAction.repeatForever(action), forKey: "autoRotation")
+    }
+
+    private func stopAutoRotation() {
+        guard let scene,
+              let rotationNode = scene.rootNode.childNode(withName: "rotationNode", recursively: true)
+        else { return }
+        rotationNode.removeAction(forKey: "autoRotation")
     }
 
     private func updateSceneBackground() {

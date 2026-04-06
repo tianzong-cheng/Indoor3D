@@ -174,9 +174,13 @@ struct PLYParser {
         )
         node.position = SCNVector3(-center.x, -center.y, -center.z)
 
-        scene.rootNode.addChildNode(node)
+        // Wrap geometry in a rotation node for auto-rotation
+        let rotationNode = SCNNode()
+        rotationNode.name = "rotationNode"
+        rotationNode.addChildNode(node)
+        scene.rootNode.addChildNode(rotationNode)
 
-        // Add camera
+        // Add camera at 45-degree elevation
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
         cameraNode.name = "camera"
@@ -189,7 +193,14 @@ struct PLYParser {
         )
         let maxExtent = max(extent.x, extent.y, extent.z)
         let distance = Float(maxExtent) * 1.5
-        cameraNode.position = SCNVector3(0, 0, distance)
+        let elevationAngle = Float.pi / 4 // 45 degrees
+        cameraNode.position = SCNVector3(
+            0,
+            distance * sin(elevationAngle),
+            distance * cos(elevationAngle)
+        )
+        // Orient camera to look at the center
+        cameraNode.look(at: SCNVector3(0, 0, 0))
         scene.rootNode.addChildNode(cameraNode)
 
         return scene
