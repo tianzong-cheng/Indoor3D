@@ -17,6 +17,7 @@ final class UploadService: ObservableObject {
         guard !isUploading else { return }
 
         currentTask = Task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2s delay for demo
             await processQueue()
         }
     }
@@ -39,34 +40,25 @@ final class UploadService: ObservableObject {
 
             var updatedItem = item
             updatedItem.status = .uploading
+            updatedItem.progress = 0
             await UploadQueue.shared.update(updatedItem)
 
-            do {
-                let videoURL = await VideoStore.shared.videoURL(for: item.videoMetadata.filename)
-
-                _ = try await APIClient.shared.uploadVideo(
-                    fileURL: videoURL,
-                    latitude: item.videoMetadata.latitude ?? 0,
-                    longitude: item.videoMetadata.longitude ?? 0,
-                    altitude: item.videoMetadata.altitude,
-                    buildingName: item.videoMetadata.buildingName,
-                    floor: item.videoMetadata.floor
-                )
-
-                updatedItem.status = .completed
-                updatedItem.progress = 1.0
+            // Simulate upload progress over ~5 seconds
+            let totalDuration: Double = 5.0
+            let steps = 20
+            let stepDuration = totalDuration / Double(steps)
+            for step in 1...steps {
+                guard !Task.isCancelled else { break }
+                try? await Task.sleep(nanoseconds: UInt64(stepDuration * 1_000_000_000))
+                updatedItem.progress = Double(step) / Double(steps)
                 await UploadQueue.shared.update(updatedItem)
-
-            } catch {
-                updatedItem.status = .failed
-                updatedItem.errorMessage = error.localizedDescription
-                updatedItem.retryCount += 1
-                await UploadQueue.shared.update(updatedItem)
-
-                // Exponential backoff
-                let delay = min(60, pow(2.0, Double(updatedItem.retryCount)))
-                try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
             }
+
+            guard !Task.isCancelled else { break }
+
+            updatedItem.status = .completed
+            updatedItem.progress = 1.0
+            await UploadQueue.shared.update(updatedItem)
         }
 
         isUploading = false

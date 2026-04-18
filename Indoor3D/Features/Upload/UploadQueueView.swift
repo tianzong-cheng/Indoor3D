@@ -78,6 +78,11 @@ struct UploadQueueItemRow: View {
                 Text(statusText)
                     .font(.caption)
                     .foregroundStyle(statusColor)
+
+                if item.status == .uploading {
+                    ProgressView(value: item.progress)
+                        .tint(.blue)
+                }
             }
 
             Spacer()

@@ -9,12 +9,25 @@ final class UploadQueueViewModel: ObservableObject {
     @Published var isLoading = false
 
     private let uploadService = UploadService.shared
+    private var refreshTask: Task<Void, Never>?
 
     func loadItems() async {
         isLoading = true
         await UploadQueue.shared.syncWithLocalVideos()
         items = await UploadQueue.shared.getAll()
         isLoading = false
+        startRefreshing()
+    }
+
+    private func startRefreshing() {
+        refreshTask?.cancel()
+        refreshTask = Task {
+            while !Task.isCancelled {
+                items = await UploadQueue.shared.getAll()
+                if !uploadService.isUploading { break }
+                try? await Task.sleep(nanoseconds: 200_000_000) // 0.2s
+            }
+        }
     }
 
     func retry(_ item: UploadQueueItem) async {
