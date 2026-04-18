@@ -55,6 +55,12 @@ struct UploadQueueItemRow: View {
     let onRetry: () -> Void
     let onRemove: () -> Void
 
+    private var recordedAtText: String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: item.videoMetadata.createdAt, relativeTo: Date())
+    }
+
     var body: some View {
         HStack {
             Image(systemName: "video.fill")
@@ -62,10 +68,10 @@ struct UploadQueueItemRow: View {
                 .foregroundStyle(.secondary)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(item.videoMetadata.filename)
+                Text(locationText)
                     .font(.headline)
 
-                Text(locationText)
+                Text(recordedAtText)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
